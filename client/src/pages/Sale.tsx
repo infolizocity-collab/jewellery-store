@@ -1,18 +1,27 @@
-
-import React, { useEffect, useState } from "react";
-import api from "@/utils/axiosInstance";
+// src/pages/Sale.tsx
+import { useEffect, useState } from "react";
+import api from "../utils/axiosInstance";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 
+interface Product {
+  _id: string;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  image: string;
+  slug: string;
+}
+
 const Sale = () => {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
 
   useEffect(() => {
     const fetchSaleProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/products/sale");
+        const res = await api.get("/products/sale"); // ✅ baseURL handle karega
         setProducts(res.data);
       } catch (err) {
         console.error("Error fetching sale products:", err);
@@ -59,7 +68,14 @@ const Sale = () => {
                     View
                   </Link>
                   <button
-                    onClick={() => addToCart(p)}
+                    onClick={() =>
+                      addToCart({
+                        _id: p._id,        // ✅ correct CartItem mapping
+                        name: p.name,
+                        price: p.price,
+                        image: p.image,
+                      })
+                    }
                     className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black font-medium px-3 py-1 rounded"
                   >
                     Add to Cart

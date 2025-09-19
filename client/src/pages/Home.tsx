@@ -1,6 +1,6 @@
 // src/pages/Home.tsx
-import React, { useEffect, useState } from "react";
-import api from "@/utils/axiosInstance";
+import { useEffect, useState } from "react";
+import api from "../utils/axiosInstance";
 import Slider from "react-slick";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -9,18 +9,29 @@ import { useCart } from "@/context/CartContext";
 import Earrings from "../assets/earrings.jpg";
 import Pendants from "../assets/pendants.jpg";
 
+// ✅ Product type
+interface Product {
+  _id: string;
+  name: string;
+  price: number;
+  image: string;
+  originalPrice?: number;
+  category?: string;
+  slug?: string;
+  onSale?: boolean;
+  
+}
+
 const Home = () => {
   const { addToCart } = useCart();
-  const [products, setProducts] = useState<any[]>([]);
-  const [saleProducts, setSaleProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [saleProducts, setSaleProducts] = useState<Product[]>([]);
   const [selectedBudget, setSelectedBudget] = useState<{label: string, min: number, max: number} | null>(null);
-
-
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await api.get("http://localhost:5000/api/products");
+        const res = await api.get<Product[]>("http://localhost:5000/api/products");
         setProducts(res.data);
       } catch (err) {
         console.error("Error fetching products:", err);
@@ -29,7 +40,7 @@ const Home = () => {
 
     const fetchSaleProducts = async () => {
       try {
-        const res = await api.get("http://localhost:5000/api/products/sale");
+        const res = await api.get<Product[]>("http://localhost:5000/api/products/sale");
         setSaleProducts(res.data);
       } catch (err) {
         console.error("Error fetching sale products:", err);
@@ -56,10 +67,9 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen font-serif text-black 
-                    bg-gradient-to-br from-pink-100 via-white to-pink-200">
+    <div className="min-h-screen font-serif text-black bg-gradient-to-br from-pink-100 via-white to-pink-200">
+      
       {/* Hero Section */}
-       {/* Hero Section */}
       <section
         className="relative h-[80vh] bg-cover bg-center flex items-center justify-start px-12"
         style={{
@@ -114,7 +124,6 @@ const Home = () => {
         </div>
       </section>
 
-
       {/* 💸 Shop Under Budget Section */}
       <section className="px-12 py-16 bg-white/70 rounded-lg mx-4 shadow-lg">
         <h3 className="text-2xl mb-8 text-pink-600">💸 Shop Under Budget</h3>
@@ -146,9 +155,7 @@ const Home = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {products
               .filter(
-                (p) =>
-                  p.price >= selectedBudget.min &&
-                  p.price <= selectedBudget.max
+                (p) => p.price >= selectedBudget.min && p.price <= selectedBudget.max
               )
               .map((p) => (
                 <motion.div
@@ -161,9 +168,7 @@ const Home = () => {
                     alt={p.name}
                     className="h-40 mx-auto mb-3 object-cover rounded-lg"
                   />
-                  <h4 className="text-lg font-semibold text-black">
-                    {p.name}
-                  </h4>
+                  <h4 className="text-lg font-semibold text-black">{p.name}</h4>
                   <p className="text-pink-600">₹{p.price}</p>
 
                   <button
@@ -173,7 +178,8 @@ const Home = () => {
                         name: p.name,
                         price: p.price,
                         image: p.image,
-                        qty: 1,
+                        
+                        
                       })
                     }
                     className="mt-3 px-4 py-2 bg-pink-500 text-white rounded opacity-0 group-hover:opacity-100 transition"
@@ -188,8 +194,7 @@ const Home = () => {
         {/* No Products Found */}
         {selectedBudget &&
           products.filter(
-            (p) =>
-              p.price >= selectedBudget.min && p.price <= selectedBudget.max
+            (p) => p.price >= selectedBudget.min && p.price <= selectedBudget.max
           ).length === 0 && (
             <p className="text-center text-gray-600">
               No products under this budget
@@ -197,9 +202,7 @@ const Home = () => {
           )}
       </section>
 
-
-
-      {/* Trending Collection */}
+      {/* 🔥 Trending Collection */}
       <section className="px-12 py-16">
         <h3 className="text-2xl mb-8">TRENDING COLLECTION</h3>
         {products.length > 0 ? (
@@ -230,7 +233,7 @@ const Home = () => {
                         name: p.name,
                         price: p.price,
                         image: p.image,
-                        qty: 1,
+                        
                       })
                     }
                     className="mt-3 px-4 py-2 bg-pink-500 text-white rounded opacity-0 group-hover:opacity-100 transition"
@@ -266,9 +269,7 @@ const Home = () => {
                   <div className="mt-2">
                     <p className="text-red-500 font-bold">₹{p.price}</p>
                     {p.originalPrice && (
-                      <p className="text-gray-400 line-through">
-                        ₹{p.originalPrice}
-                      </p>
+                      <p className="text-gray-400 line-through">₹{p.originalPrice}</p>
                     )}
                   </div>
                   <Link
@@ -282,17 +283,13 @@ const Home = () => {
             ))}
           </Slider>
         ) : (
-          <p className="text-center text-gray-600">
-            No sale products available
-          </p>
+          <p className="text-center text-gray-600">No sale products available</p>
         )}
       </section>
 
       {/* ✨ Korean Jewelry Section */}
       <section className="px-12 py-16">
-        <h3 className="text-2xl mb-8 text-pink-600">
-          ✨ Korean Jewelry Collection
-        </h3>
+        <h3 className="text-2xl mb-8 text-pink-600">✨ Korean Jewelry Collection</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {products
             .filter((p) => p.category?.toLowerCase() === "korean jewelry")
@@ -318,11 +315,10 @@ const Home = () => {
                 <button
                   onClick={() =>
                     addToCart({
-                      id: p._id,
+                      _id: p._id,
                       name: p.name,
                       price: p.price,
-                      img: p.image,
-                      quantity: 1,
+                      image: p.image,
                     })
                   }
                   className="mt-3 px-4 py-2 bg-pink-500 text-white rounded opacity-0 group-hover:opacity-100 transition"
@@ -338,8 +334,7 @@ const Home = () => {
       <section className="px-12 py-16 bg-white/70 rounded-lg mx-4 shadow-lg text-center">
         <h3 className="text-2xl mb-6">🎁 Create Your Own Hamper</h3>
         <p className="text-gray-600 mb-6">
-          Design a hamper with your favorite jewelry pieces and make it truly
-          personal.
+          Design a hamper with your favorite jewelry pieces and make it truly personal.
         </p>
         <Link
           to="/hamper"

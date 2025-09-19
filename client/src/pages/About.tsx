@@ -1,4 +1,5 @@
-import React from "react";
+
+
 import jslogo from "../assets/jslogo.jpeg";  // 👈 extension confirm karo
 
 const About = () => {

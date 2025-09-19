@@ -1,7 +1,7 @@
 // src/pages/Products.tsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";   // ✅ React import hata diya
 import { useCart } from "../context/CartContext";
-import api from "@/utils/axiosInstance";
+import api from "../utils/axiosInstance";
 
 interface Product {
   _id: string;
@@ -18,7 +18,7 @@ const Products = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await api.get("http://localhost:5000/api/products"); // 👈 backend API
+        const res = await api.get("/products"); // ✅ baseURL auto add hoga
         setProducts(res.data);
         setLoading(false);
       } catch (error) {
@@ -58,10 +58,10 @@ const Products = () => {
               <button
                 onClick={() =>
                   addToCart({
-                    id: item._id,
+                    _id: item._id,
                     name: item.name,
                     price: item.price,
-                    img: item.image,
+                    image: item.image,
                   })
                 }
                 className="mt-3 bg-yellow-400 hover:bg-yellow-500 px-4 py-2 rounded-lg font-medium"

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api from "@/utils/axiosInstance";
+import api from "../utils/axiosInstance";
 
 const CustomHamper = () => {
   const [products, setProducts] = useState<any[]>([]);

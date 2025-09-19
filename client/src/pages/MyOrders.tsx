@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "@/utils/axiosInstance";
+import api from "../utils/axiosInstance";
 import { Link } from "react-router-dom";
 
 interface Order {

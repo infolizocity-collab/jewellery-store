@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import api from "@/utils/axiosInstance";
+import { useState } from "react";
+import api from "../utils/axiosInstance";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -15,19 +15,19 @@ const Register = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // handle input
+  // ✅ handle input by "name" attribute
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.type === "text" ? "name" : e.target.type]: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // handle submit
+  // ✅ handle submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/register", formData, {
+      const res = await api.post("/auth/register", formData, {
         headers: { "Content-Type": "application/json" },
       });
 
@@ -54,6 +54,7 @@ const Register = () => {
         <form className="space-y-4" onSubmit={handleSubmit}>
           <input
             type="text"
+            name="name" // ✅ name attribute added
             placeholder="Full Name"
             value={formData.name}
             onChange={handleChange}
@@ -62,6 +63,7 @@ const Register = () => {
           />
           <input
             type="email"
+            name="email" // ✅ name attribute added
             placeholder="Email"
             value={formData.email}
             onChange={handleChange}
@@ -70,6 +72,7 @@ const Register = () => {
           />
           <input
             type="password"
+            name="password" // ✅ name attribute added
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}

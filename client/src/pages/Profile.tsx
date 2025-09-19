@@ -1,6 +1,6 @@
 import React, { useContext, useState, useRef, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
-import api from "@/utils/axiosInstance";
+import api from "../utils/axiosInstance";
 
 const Profile: React.FC = () => {
   const auth = useContext(AuthContext);

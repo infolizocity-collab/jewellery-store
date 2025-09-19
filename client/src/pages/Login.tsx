@@ -1,6 +1,6 @@
 // src/pages/Login.tsx
 import React, { useState } from "react";
-import api from "@/utils/axiosInstance";
+import api from "../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext"; // ✅ custom hook use karo
 

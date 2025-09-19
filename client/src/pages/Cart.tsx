@@ -1,12 +1,15 @@
-import React from "react";
 import { useCart } from "../context/CartContext";
+import type { CartItem } from "../context/CartContext";
 import { Trash2, Plus, Minus, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Cart = () => {
   const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
 
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const total = cart.reduce(
+    (sum: number, item: CartItem) => sum + item.price * item.quantity,
+    0
+  );
 
   if (cart.length === 0) {
     return (
@@ -29,14 +32,14 @@ const Cart = () => {
       <h1 className="text-3xl font-bold mb-6 text-center">Shopping Cart</h1>
 
       <div className="bg-white shadow rounded-lg p-4 space-y-4">
-        {cart.map((item, index) => (
+        {cart.map((item: CartItem) => (
           <div
-            key={item._id || item.id || index}
+            key={item._id}   // ✅ id → _id
             className="flex items-center justify-between border-b pb-3"
           >
             <div className="flex items-center gap-4">
               <img
-                src={item.img || item.image}
+                src={item.image}   // ✅ img → image
                 alt={item.name}
                 className="w-20 h-20 object-cover rounded"
               />
@@ -46,14 +49,10 @@ const Cart = () => {
               </div>
             </div>
 
+            {/* Quantity Control */}
             <div className="flex items-center gap-2">
               <button
-                onClick={() =>
-                  updateQuantity(
-                    item._id || item.id,
-                    Math.max(item.quantity - 1, 1)
-                  )
-                }
+                onClick={() => updateQuantity(item._id, item.quantity - 1)}  // ✅ id → _id
                 className="p-1 border rounded"
               >
                 <Minus size={16} />
@@ -61,31 +60,27 @@ const Cart = () => {
               <input
                 type="number"
                 value={item.quantity}
-                min="1"
+                min={1}
                 onChange={(e) =>
-                  updateQuantity(
-                    item._id || item.id,
-                    parseInt(e.target.value) || 1
-                  )
+                  updateQuantity(item._id, parseInt(e.target.value) || 1) // ✅ id → _id
                 }
                 className="w-12 text-center border rounded"
               />
               <button
-                onClick={() =>
-                  updateQuantity(item._id || item.id, item.quantity + 1)
-                }
+                onClick={() => updateQuantity(item._id, item.quantity + 1)} // ✅ id → _id
                 className="p-1 border rounded"
               >
                 <Plus size={16} />
               </button>
             </div>
 
+            {/* Price + Remove */}
             <div className="flex items-center gap-3">
               <span className="font-semibold">
                 ₹{item.price * item.quantity}
               </span>
               <button
-                onClick={() => removeFromCart(item._id || item.id)}
+                onClick={() => removeFromCart(item._id)} // ✅ id → _id
                 className="text-red-500 hover:text-red-700"
               >
                 <Trash2 size={18} />

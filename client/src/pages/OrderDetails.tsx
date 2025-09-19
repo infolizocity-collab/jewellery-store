@@ -1,7 +1,7 @@
 // src/pages/OrderDetails.tsx
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import api from "@/utils/axiosInstance";
+import api from "../utils/axiosInstance";
 
 interface Order {
   _id: string;

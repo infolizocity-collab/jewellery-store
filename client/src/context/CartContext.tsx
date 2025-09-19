@@ -1,33 +1,32 @@
 // src/context/CartContext.tsx
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+import type { ReactNode } from "react";
 
 // ✅ Cart Item Interface
 export interface CartItem {
-  id: string;        // MongoDB ka _id ya product id
+  _id: string;       // ✅ backend se aata hai
   name: string;
   price: number;
-  img: string;
+  image: string;     // ✅ backend ka field
   quantity: number;
 }
 
 interface CartContextType {
   cart: CartItem[];
   addToCart: (item: Omit<CartItem, "quantity">) => void;
-  removeFromCart: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
+  removeFromCart: (_id: string) => void;
+  updateQuantity: (_id: string, quantity: number) => void;
   clearCart: () => void;
 }
 
 const CartContext = createContext<CartContextType | null>(null);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  // ✅ LocalStorage se initial cart load karo
   const [cart, setCart] = useState<CartItem[]>(() => {
     const savedCart = localStorage.getItem("cart");
     return savedCart ? JSON.parse(savedCart) : [];
   });
 
-  // ✅ Jab bhi cart update hoga, localStorage me save karna h
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
@@ -35,10 +34,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   // ✅ Add to Cart
   const addToCart = (item: Omit<CartItem, "quantity">) => {
     setCart((prev) => {
-      const existing = prev.find((i) => i.id === item.id);
+      const existing = prev.find((i) => i._id === item._id);
       if (existing) {
         return prev.map((i) =>
-          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+          i._id === item._id ? { ...i, quantity: i.quantity + 1 } : i
         );
       }
       return [...prev, { ...item, quantity: 1 }];
@@ -46,19 +45,18 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // ✅ Remove item
-  const removeFromCart = (id: string) => {
-    setCart((prev) => prev.filter((i) => i.id !== id));
+  const removeFromCart = (_id: string) => {
+    setCart((prev) => prev.filter((i) => i._id !== _id));
   };
 
   // ✅ Update Quantity
-  const updateQuantity = (id: string, quantity: number) => {
+  const updateQuantity = (_id: string, quantity: number) => {
     if (quantity < 1) return;
     setCart((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, quantity } : i))
+      prev.map((i) => (i._id === _id ? { ...i, quantity } : i))
     );
   };
 
-  // ✅ Clear Cart
   const clearCart = () => setCart([]);
 
   return (
@@ -70,7 +68,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// ✅ Hook for easy usage
 export const useCart = () => {
   const context = useContext(CartContext);
   if (!context) {

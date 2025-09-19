@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import api from "@/utils/axiosInstance";
+import api from "../utils/axiosInstance";
 
 const CategoryPage = () => {
   const { category } = useParams();

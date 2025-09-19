@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import api from "@/utils/axiosInstance";
+import api from "../utils/axiosInstance";
 import { useCart } from "../context/CartContext";  
 
 interface Review {
@@ -23,6 +23,8 @@ interface Product {
   slug: string;
   reviews?: Review[];
 }
+
+
 
 const ProductDetails = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -126,12 +128,20 @@ const ProductDetails = () => {
           </p>
 
           <button
-            disabled={product.stock === 0}
-            onClick={() => addToCart(product)}
-            className="bg-yellow-400 hover:bg-yellow-500 px-6 py-2 rounded-lg font-semibold disabled:opacity-50"
-          >
-            🛒 Add to Cart
-          </button>
+  disabled={product.stock === 0}
+  onClick={() =>
+    addToCart({
+      _id: product._id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      
+    })
+  }
+  className="bg-yellow-400 hover:bg-yellow-500 px-6 py-2 rounded-lg font-semibold disabled:opacity-50"
+>
+  🛒 Add to Cart
+</button>
         </div>
       </div>
 

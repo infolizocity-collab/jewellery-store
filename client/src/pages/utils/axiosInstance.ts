@@ -1,5 +1,6 @@
-import api from "./axiosInstance";
+import axios from "axios";  // ✅ axios ko import karo, api ko nahi
 
+// ✅ Ek instance banao
 const api = axios.create({
   baseURL: "http://localhost:5000/api",
 });
@@ -13,8 +14,8 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// 🔹 Default export
+// ✅ Default export
 export default api;
 
-// 🔹 Alias export (old axios code bhi chalega)
+// ✅ Alias export (agar kahin tum "axios" use karna chaho)
 export { api as axios };
