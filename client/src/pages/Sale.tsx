@@ -1,9 +1,9 @@
-// src/pages/Sale.tsx
 import { useEffect, useState } from "react";
 import api from "../utils/axiosInstance";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 
+// 🔹 Product type
 interface Product {
   _id: string;
   name: string;
@@ -21,7 +21,7 @@ const Sale = () => {
   useEffect(() => {
     const fetchSaleProducts = async () => {
       try {
-        const res = await api.get("/products/sale"); // ✅ baseURL handle karega
+        const res = await api.get<Product[]>("/products/sale"); // ✅ Typed response
         setProducts(res.data);
       } catch (err) {
         console.error("Error fetching sale products:", err);
@@ -70,7 +70,7 @@ const Sale = () => {
                   <button
                     onClick={() =>
                       addToCart({
-                        _id: p._id,        // ✅ correct CartItem mapping
+                        _id: p._id,
                         name: p.name,
                         price: p.price,
                         image: p.image,
