@@ -1,11 +1,9 @@
-// src/utils/axiosInstance.ts
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: import.meta.env.VITE_API_BASE_URL, // ✅ env se URL aayega
 });
 
-// ✅ Token inject automatically
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token && config.headers) {
@@ -14,8 +12,4 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// 🔹 Default export
 export default api;
-
-// 🔹 Alias export (agar kahin purane code me axios likha hai)
-export { api as axios };
