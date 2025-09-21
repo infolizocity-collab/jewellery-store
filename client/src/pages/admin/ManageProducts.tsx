@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../../utils/axiosInstance";
 
+// 🔹 Product type
 interface Product {
   _id: string;
   name: string;
@@ -16,22 +17,24 @@ const ManageProducts = () => {
   const [loading, setLoading] = useState(true);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
+  // ✅ Fetch products
   const fetchProducts = async () => {
     try {
-      const res = await api.get("/products");
+      const res = await api.get<Product[]>("/products");
       setProducts(res.data);
-      setLoading(false);
     } catch (err) {
       console.error("Error fetching products", err);
+    } finally {
       setLoading(false);
     }
   };
 
+  // ✅ Delete product
   const deleteProduct = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
     try {
       const token = localStorage.getItem("token");
-      await api.delete(`http://localhost:5000/api/products/${id}`, {
+      await api.delete(`/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProducts(products.filter((p) => p._id !== id));
@@ -40,16 +43,16 @@ const ManageProducts = () => {
     }
   };
 
+  // ✅ Update product
   const handleUpdate = async () => {
     if (!editingProduct) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await api.put(
-        `http://localhost:5000/api/products/${editingProduct._id}`,
+      const res = await api.put<Product>(
+        `/products/${editingProduct._id}`,
         editingProduct,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       setProducts(products.map((p) => (p._id === res.data._id ? res.data : p)));
       setEditingProduct(null);
     } catch (err) {
@@ -89,7 +92,7 @@ const ManageProducts = () => {
                 </td>
                 <td className="p-2 border">{p.name}</td>
                 <td className="p-2 border">
-                  ₹{p.price}{" "}
+                  ₹{p.price}
                   {p.onSale && p.originalPrice && (
                     <span className="line-through text-gray-500 ml-2">
                       ₹{p.originalPrice}
@@ -115,7 +118,7 @@ const ManageProducts = () => {
             ))}
             {products.length === 0 && (
               <tr>
-                <td colSpan={5} className="p-4 text-gray-600">
+                <td colSpan={5} className="p-4 text-gray-600 text-center">
                   No products found.
                 </td>
               </tr>

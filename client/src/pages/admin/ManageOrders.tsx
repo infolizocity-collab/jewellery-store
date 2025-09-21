@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../../utils/axiosInstance";
 
+// 🔹 Order type
 interface Order {
   _id: string;
   total: number;
@@ -13,6 +14,7 @@ interface Order {
   }[];
 }
 
+// 🔹 Hamper type
 interface Hamper {
   _id: string;
   title: string;
@@ -34,10 +36,10 @@ const ManageOrders = () => {
 
   const token = localStorage.getItem("token");
 
-  // ✅ Normal Orders
+  // ✅ Fetch normal orders
   const fetchOrders = async () => {
     try {
-      const res = await api.get("http://localhost:5000/api/orders", {
+      const res = await api.get<Order[]>("/orders", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setOrders(res.data);
@@ -46,10 +48,10 @@ const ManageOrders = () => {
     }
   };
 
-  // ✅ Hamper Orders
+  // ✅ Fetch hamper orders
   const fetchHampers = async () => {
     try {
-      const res = await api.get("http://localhost:5000/api/orders/hamper", {
+      const res = await api.get<Hamper[]>("/orders/hamper", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setHampers(res.data);
@@ -58,38 +60,32 @@ const ManageOrders = () => {
     }
   };
 
-  // ✅ Update Hamper Status
-  const updateHamperStatus = async (id: string, status: string) => {
-    try {
-      await api.put(
-        `http://localhost:5000/api/orders/hamper/${id}`,
-        { status },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      fetchHampers();
-    } catch (err) {
-      console.error("❌ Error updating hamper:", err);
-    }
-  };
-
-  // ✅ Update Normal Order Status
+  // ✅ Update normal order status
   const updateStatus = async (id: string, status: string) => {
     try {
-      await api.put(
-        `http://localhost:5000/api/orders/${id}`,
-        { status },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.put(`/orders/${id}`, { status }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       fetchOrders();
     } catch (err) {
       console.error("❌ Error updating order:", err);
     }
   };
 
+  // ✅ Update hamper order status
+  const updateHamperStatus = async (id: string, status: string) => {
+    try {
+      await api.put(`/orders/hamper/${id}`, { status }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchHampers();
+    } catch (err) {
+      console.error("❌ Error updating hamper:", err);
+    }
+  };
+
   useEffect(() => {
-    fetchOrders();
-    fetchHampers();
-    setLoading(false);
+    Promise.all([fetchOrders(), fetchHampers()]).finally(() => setLoading(false));
   }, []);
 
   if (loading) return <p className="text-center mt-10">Loading orders...</p>;
@@ -110,14 +106,13 @@ const ManageOrders = () => {
                 <span className="font-bold">Order ID: {order._id}</span>
                 <span className="text-sm">{order.status}</span>
               </div>
-              <p>User: {order.user?.name} ({order.user?.email})</p>
+              <p>User: {order.user.name} ({order.user.email})</p>
               <p>Total: ₹{order.total}</p>
 
-              {/* Items */}
               {order.items.map((item, idx) => (
                 <div key={idx} className="flex justify-between">
-                  <span>{item.product?.name} (x{item.qty})</span>
-                  <span>₹{item.product?.price * item.qty}</span>
+                  <span>{item.product.name} (x{item.qty})</span>
+                  <span>₹{item.product.price * item.qty}</span>
                 </div>
               ))}
 
@@ -147,15 +142,14 @@ const ManageOrders = () => {
                 <span className="font-bold">{hamper.title}</span>
                 <span className="text-sm">{hamper.status}</span>
               </div>
-              <p>User: {hamper.user?.name} ({hamper.user?.email})</p>
+              <p>User: {hamper.user.name} ({hamper.user.email})</p>
               <p>Total: ₹{hamper.totalPrice}</p>
               {hamper.customNote && <p>Note: {hamper.customNote}</p>}
 
-              {/* Hamper Items */}
               {hamper.items.map((item, idx) => (
                 <div key={idx} className="flex justify-between">
-                  <span>{item.product?.name} (x{item.quantity})</span>
-                  <span>₹{item.product?.price * item.quantity}</span>
+                  <span>{item.product.name} (x{item.quantity})</span>
+                  <span>₹{item.product.price * item.quantity}</span>
                 </div>
               ))}
 
