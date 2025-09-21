@@ -1,8 +1,8 @@
-// src/pages/Products.tsx
-import { useEffect, useState } from "react";   // ✅ React import hata diya
+import { useEffect, useState } from "react";
 import { useCart } from "../context/CartContext";
 import api from "../utils/axiosInstance";
 
+// 🔹 Product type
 interface Product {
   _id: string;
   name: string;
@@ -18,11 +18,12 @@ const Products = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await api.get("/products"); // ✅ baseURL auto add hoga
+        // ✅ Type the Axios response to avoid 'unknown' error
+        const res = await api.get<Product[]>("/products");
         setProducts(res.data);
-        setLoading(false);
       } catch (error) {
-        console.error("Error fetching products", error);
+        console.error("❌ Error fetching products:", error);
+      } finally {
         setLoading(false);
       }
     };

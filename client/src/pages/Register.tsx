@@ -3,6 +3,18 @@ import api from "../utils/axiosInstance";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
+// 🔹 Define expected response type from backend
+interface RegisterResponse {
+  token: string;
+  user: {
+    _id: string;
+    name: string;
+    email: string;
+    role: "user" | "admin";
+    profilePic?: string;
+  };
+}
+
 const Register = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -12,6 +24,7 @@ const Register = () => {
     email: "",
     password: "",
   });
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -27,14 +40,13 @@ const Register = () => {
     setLoading(true);
 
     try {
-      const res = await api.post("/auth/register", formData, {
+      // ✅ Type the Axios response
+      const res = await api.post<RegisterResponse>("/auth/register", formData, {
         headers: { "Content-Type": "application/json" },
       });
 
-      // save user in context
-      login(res.data.user, res.data.token);
-
-      navigate("/"); // ✅ redirect after register
+      login(res.data.user, res.data.token); // ✅ Type-safe now
+      navigate("/");
     } catch (err: any) {
       setError(err.response?.data?.message || "Something went wrong");
     } finally {
@@ -54,7 +66,7 @@ const Register = () => {
         <form className="space-y-4" onSubmit={handleSubmit}>
           <input
             type="text"
-            name="name" // ✅ name attribute added
+            name="name"
             placeholder="Full Name"
             value={formData.name}
             onChange={handleChange}
@@ -63,7 +75,7 @@ const Register = () => {
           />
           <input
             type="email"
-            name="email" // ✅ name attribute added
+            name="email"
             placeholder="Email"
             value={formData.email}
             onChange={handleChange}
@@ -72,7 +84,7 @@ const Register = () => {
           />
           <input
             type="password"
-            name="password" // ✅ name attribute added
+            name="password"
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}

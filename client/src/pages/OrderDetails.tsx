@@ -1,15 +1,19 @@
-// src/pages/OrderDetails.tsx
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../utils/axiosInstance";
 
+// 🔹 Order type
 interface Order {
   _id: string;
   total: number;
   status: string;
   createdAt: string;
   items: {
-    product: { name: string; price: number; image?: string };
+    product: {
+      name: string;
+      price: number;
+      image?: string;
+    };
     qty: number;
   }[];
   address?: {
@@ -31,10 +35,13 @@ const OrderDetails = () => {
   const fetchOrder = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get(`http://localhost:5000/api/orders/${id}`, {
+
+      // ✅ Tell Axios what type of data to expect
+      const res = await api.get<Order>(`/orders/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setOrder(res.data);
+
+      setOrder(res.data); // ✅ Type-safe now
       setLoading(false);
     } catch (err) {
       console.error("❌ Error fetching order details:", err);
@@ -96,9 +103,9 @@ const OrderDetails = () => {
                   className="w-16 h-16 object-cover rounded"
                 />
               )}
-              <span>{item.product?.name} (x{item.qty})</span>
+              <span>{item.product.name} (x{item.qty})</span>
             </div>
-            <span>₹{item.product?.price * item.qty}</span>
+            <span>₹{item.product.price * item.qty}</span>
           </div>
         ))}
         <div className="mt-3 font-bold text-right">Total: ₹{order.total}</div>
@@ -108,11 +115,11 @@ const OrderDetails = () => {
       {order.address ? (
         <div className="bg-white shadow rounded-lg p-4 mb-6">
           <h2 className="text-xl font-semibold mb-3">Shipping Address</h2>
-          <p>{order.address?.name}</p>
-          <p>{order.address?.phone}</p>
-          <p>{order.address?.address}</p>
+          <p>{order.address.name}</p>
+          <p>{order.address.phone}</p>
+          <p>{order.address.address}</p>
           <p>
-            {order.address?.city}, {order.address?.state} - {order.address?.pincode}
+            {order.address.city}, {order.address.state} - {order.address.pincode}
           </p>
         </div>
       ) : (

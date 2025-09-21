@@ -2,14 +2,19 @@ import { useEffect, useState } from "react";
 import api from "../utils/axiosInstance";
 import { Link } from "react-router-dom";
 
+// 🔹 Order type
 interface Order {
   _id: string;
   total: number;
   status: string;
   createdAt: string;
-  payment: string;  // ✅ नया field
+  payment: string;
   items: {
-    product: { name: string; price: number; image: string };
+    product: {
+      name: string;
+      price: number;
+      image: string;
+    };
     qty: number;
   }[];
 }
@@ -21,10 +26,13 @@ const MyOrders = () => {
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get("http://localhost:5000/api/orders/myorders", {
+
+      // ✅ Tell Axios what type of data to expect
+      const res = await api.get<Order[]>("/orders/myorders", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setOrders(res.data);
+
+      setOrders(res.data); // ✅ TypeScript now knows this is Order[]
       setLoading(false);
     } catch (err) {
       console.error("❌ Error fetching orders:", err);
@@ -83,16 +91,16 @@ const MyOrders = () => {
                 >
                   <div className="flex items-center gap-3">
                     <img
-                      src={item.product?.image}
-                      alt={item.product?.name}
+                      src={item.product.image}
+                      alt={item.product.name}
                       className="w-12 h-12 object-cover rounded"
                     />
                     <span>
-                      {item.product?.name} (x{item.qty})
+                      {item.product.name} (x{item.qty})
                     </span>
                   </div>
                   <span className="font-medium">
-                    ₹{item.product?.price * item.qty}
+                    ₹{item.product.price * item.qty}
                   </span>
                 </div>
               ))}

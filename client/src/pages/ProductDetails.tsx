@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../utils/axiosInstance";
-import { useCart } from "../context/CartContext";  
+import { useCart } from "../context/CartContext";
 
 interface Review {
   _id?: string;
@@ -24,8 +24,6 @@ interface Product {
   reviews?: Review[];
 }
 
-
-
 const ProductDetails = () => {
   const { slug } = useParams<{ slug: string }>();
   const [product, setProduct] = useState<Product | null>(null);
@@ -33,7 +31,6 @@ const ProductDetails = () => {
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
 
-  // Review form states
   const [rating, setRating] = useState<number>(5);
   const [comment, setComment] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
@@ -41,13 +38,13 @@ const ProductDetails = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await api.get(`http://localhost:5000/api/products/slug/${slug}`);
+        const res = await api.get<Product>(`/products/slug/${slug}`);
         setProduct(res.data);
 
         if (res.data.category) {
-          const relatedRes = await api.get("http://localhost:5000/api/products");
+          const relatedRes = await api.get<Product[]>(`/products`);
           const filtered = relatedRes.data.filter(
-            (p: Product) => p.category === res.data.category && p.slug !== res.data.slug
+            (p) => p.category === res.data.category && p.slug !== res.data.slug
           );
           setRelated(filtered.slice(0, 3));
         }
@@ -61,20 +58,18 @@ const ProductDetails = () => {
     fetchProduct();
   }, [slug]);
 
-  // ✅ Submit review
   const submitReview = async () => {
     if (!product) return;
     setSubmitting(true);
 
     try {
       await api.post(
-        `http://localhost:5000/api/products/${product._id}/reviews`,
+        `/products/${product._id}/reviews`,
         { rating, comment },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } } // user token
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
 
-      // ✅ Reload product after review
-      const updated = await api.get(`http://localhost:5000/api/products/slug/${slug}`);
+      const updated = await api.get<Product>(`/products/slug/${slug}`);
       setProduct(updated.data);
 
       setComment("");
@@ -128,20 +123,19 @@ const ProductDetails = () => {
           </p>
 
           <button
-  disabled={product.stock === 0}
-  onClick={() =>
-    addToCart({
-      _id: product._id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      
-    })
-  }
-  className="bg-yellow-400 hover:bg-yellow-500 px-6 py-2 rounded-lg font-semibold disabled:opacity-50"
->
-  🛒 Add to Cart
-</button>
+            disabled={product.stock === 0}
+            onClick={() =>
+              addToCart({
+                _id: product._id,
+                name: product.name,
+                price: product.price,
+                image: product.image,
+              })
+            }
+            className="bg-yellow-400 hover:bg-yellow-500 px-6 py-2 rounded-lg font-semibold disabled:opacity-50"
+          >
+            🛒 Add to Cart
+          </button>
         </div>
       </div>
 

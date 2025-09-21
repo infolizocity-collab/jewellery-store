@@ -1,19 +1,27 @@
 import React, { useEffect, useState } from "react";
 import api from "../utils/axiosInstance";
 
+// ✅ Define Product type
+interface Product {
+  _id: string;
+  name: string;
+  price: number;
+  image: string;
+}
+
 const CustomHamper = () => {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
   const [success, setSuccess] = useState("");
 
-  // ✅ Products load
+  // ✅ Load products with proper typing
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await api.get("http://localhost:5000/api/products");
+        const res = await api.get<Product[]>("/products");
         setProducts(res.data);
       } catch (err) {
         console.error("Error fetching products:", err);
@@ -22,7 +30,7 @@ const CustomHamper = () => {
     fetchProducts();
   }, []);
 
-  // ✅ Select/unselect products
+  // ✅ Toggle product selection
   const toggleSelection = (id: string) => {
     setSelectedItems((prev) =>
       prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
@@ -38,7 +46,6 @@ const CustomHamper = () => {
       return;
     }
 
-    // ✅ Backend ko required format me items bhejna
     const formattedItems = selectedItems.map((id) => ({
       product: id,
       quantity: 1,
@@ -50,7 +57,7 @@ const CustomHamper = () => {
 
     try {
       await api.post(
-        "http://localhost:5000/api/orders/custom",
+        "/orders/custom",
         {
           title: "Custom Hamper",
           items: formattedItems,
@@ -59,7 +66,7 @@ const CustomHamper = () => {
         },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // ✅ token zaroori hai
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
@@ -81,7 +88,6 @@ const CustomHamper = () => {
         🎁 Create Your Own Hamper
       </h2>
 
-      {/* ✅ Messages */}
       {message && <p className="text-center text-red-400 mb-4">{message}</p>}
       {success && <p className="text-center text-green-400 mb-4">{success}</p>}
 
@@ -89,7 +95,6 @@ const CustomHamper = () => {
         onSubmit={handleSubmit}
         className="max-w-3xl mx-auto bg-gray-900 p-8 rounded-lg shadow-lg"
       >
-        {/* Customer Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <input
             type="text"
@@ -107,7 +112,6 @@ const CustomHamper = () => {
           />
         </div>
 
-        {/* Product Selection */}
         <h3 className="text-xl mb-4">✨ Select Jewelry for Your Hamper</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-h-[400px] overflow-y-auto p-2 border border-gray-700 rounded">
           {products.map((p) => (
@@ -129,7 +133,6 @@ const CustomHamper = () => {
           ))}
         </div>
 
-        {/* Submit */}
         <div className="text-center mt-8">
           <button
             type="submit"

@@ -24,6 +24,9 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
 
+    /* ✅ Important for Axios */
+    "esModuleInterop": true,
+
     "baseUrl": "src",
     "paths": {
       "@/*": ["*"]

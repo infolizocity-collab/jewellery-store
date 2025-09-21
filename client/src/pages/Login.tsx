@@ -1,32 +1,49 @@
-// src/pages/Login.tsx
 import React, { useState } from "react";
 import api from "../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // ✅ custom hook use karo
+import { useAuth } from "../context/AuthContext";
 
+// ✅ Match the User type from AuthContext
+interface LoginResponse {
+  success: boolean;
+  token: string;
+  user: {
+    _id: string;
+    name: string;
+    email: string;
+    role?: "user" | "admin"; // optional to avoid error
+    profilePic?: string;
+  };
+}
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
-  const { login } = useAuth(); // ✅ direct login function mil gaya
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await api.post("http://localhost:5000/api/auth/login", {
-        email,
-        password,
-      });
+      const res = await api.post("/auth/login", { email, password });
+      const data = res.data as LoginResponse;
 
-      if (res.data.success) {
-        // ✅ backend se user + token aata hai
-        login(res.data.user, res.data.token);
+      if (data.success) {
+        // ✅ Fill missing fields to match User type
+        const user = {
+          ...data.user,
+          role: data.user.role || "user",
+          profilePic: data.user.profilePic || "",
+        };
+
+        login(user, data.token);
         setMessage("✅ Login successful!");
-        navigate("/profile"); // login ke baad profile pe bhejo
+        navigate("/profile");
+      } else {
+        setMessage("❌ Login failed. Please try again.");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
       setMessage("❌ Invalid email or password");
     }

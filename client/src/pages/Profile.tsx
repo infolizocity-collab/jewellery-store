@@ -2,25 +2,43 @@ import React, { useContext, useState, useRef, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import api from "../utils/axiosInstance";
 
+// 🔹 Order type
+interface Order {
+  _id: string;
+  total: number;
+  status: string;
+}
+
+// 🔹 Profile picture upload response type
+interface ProfilePicResponse {
+  user: {
+    _id: string;
+    name: string;
+    email: string;
+    role: "user" | "admin";
+    profilePic?: string;
+  };
+}
+
 const Profile: React.FC = () => {
   const auth = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState("profile");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
 
   if (!auth) return null;
   const { user, logout, updateProfile } = auth;
 
-  // ✅ Fetch my orders when orders tab is active
+  // ✅ Fetch orders when tab is active
   useEffect(() => {
     const fetchOrders = async () => {
       if (activeTab === "orders") {
         try {
           setLoadingOrders(true);
-          const res = await api.get("/orders/myorders");
+          const res = await api.get<Order[]>("/orders/myorders");
           setOrders(res.data);
         } catch (err) {
           console.error("Error fetching orders:", err);
@@ -39,7 +57,7 @@ const Profile: React.FC = () => {
     setPreview(URL.createObjectURL(file));
   };
 
-  // ✅ Upload to backend
+  // ✅ Upload profile picture
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     const input = fileInputRef.current;
@@ -47,16 +65,18 @@ const Profile: React.FC = () => {
       alert("Choose an image first");
       return;
     }
+
     const file = input.files[0];
     const form = new FormData();
     form.append("profilePic", file);
 
     try {
       setUploading(true);
-      const res = await api.post("/users/profile-pic", form, {
+      const res = await api.post<ProfilePicResponse>("/users/profile-pic", form, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      updateProfile(res.data.user);
+
+      updateProfile(res.data.user); // ✅ Type-safe now
       setPreview(null);
       alert("Profile picture updated!");
     } catch (err: any) {
@@ -99,9 +119,8 @@ const Profile: React.FC = () => {
         </ul>
       </aside>
 
-      {/* Content */}
+      {/* Main Content */}
       <main className="flex-1 p-6">
-        {/* PROFILE TAB */}
         {activeTab === "profile" && (
           <div>
             <h2 className="text-2xl font-bold mb-4">👤 Profile Info</h2>
@@ -109,17 +128,9 @@ const Profile: React.FC = () => {
             <div className="flex items-center gap-6 mb-6">
               <div className="w-28 h-28 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
                 {preview ? (
-                  <img
-                    src={preview}
-                    alt="avatar"
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={preview} alt="avatar" className="w-full h-full object-cover" />
                 ) : user?.profilePic ? (
-                  <img
-                    src={user.profilePic}
-                    alt="avatar"
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={user.profilePic} alt="avatar" className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-3xl">🙂</span>
                 )}
@@ -129,10 +140,7 @@ const Profile: React.FC = () => {
                 <p className="font-semibold">{user?.name}</p>
                 <p className="text-sm text-gray-600">{user?.email}</p>
 
-                <form
-                  onSubmit={handleUpload}
-                  className="mt-3 flex items-center gap-3"
-                >
+                <form onSubmit={handleUpload} className="mt-3 flex items-center gap-3">
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -161,14 +169,9 @@ const Profile: React.FC = () => {
               </div>
             </div>
 
-            {/* Other profile info */}
             <div className="space-y-3 text-gray-700">
-              <p>
-                <span className="font-semibold">Name:</span> {user?.name}
-              </p>
-              <p>
-                <span className="font-semibold">Email:</span> {user?.email}
-              </p>
+              <p><span className="font-semibold">Name:</span> {user?.name}</p>
+              <p><span className="font-semibold">Email:</span> {user?.email}</p>
               <p>
                 <span className="font-semibold">Role:</span>{" "}
                 <span
@@ -185,7 +188,6 @@ const Profile: React.FC = () => {
           </div>
         )}
 
-        {/* ORDERS TAB */}
         {activeTab === "orders" && (
           <div>
             <h2 className="text-2xl font-bold mb-4">📦 My Orders</h2>
@@ -196,18 +198,9 @@ const Profile: React.FC = () => {
             ) : (
               <ul className="space-y-4">
                 {orders.map((order) => (
-                  <li
-                    key={order._id}
-                    className="border p-4 rounded-lg shadow-sm"
-                  >
-                    <p>
-                      <span className="font-semibold">Order ID:</span>{" "}
-                      {order._id}
-                    </p>
-                    <p>
-                      <span className="font-semibold">Total:</span> ₹
-                      {order.total}
-                    </p>
+                  <li key={order._id} className="border p-4 rounded-lg shadow-sm">
+                    <p><span className="font-semibold">Order ID:</span> {order._id}</p>
+                    <p><span className="font-semibold">Total:</span> ₹{order.total}</p>
                     <p>
                       <span className="font-semibold">Status:</span>{" "}
                       <span
@@ -229,7 +222,6 @@ const Profile: React.FC = () => {
           </div>
         )}
 
-        {/* PLACEHOLDER TABS */}
         {activeTab === "wishlist" && (
           <div>
             <h2 className="text-2xl font-bold mb-4">❤️ Wishlist</h2>

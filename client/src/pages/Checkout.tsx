@@ -2,7 +2,13 @@ import { useState } from "react";
 import { useCart } from "../context/CartContext";
 import api from "../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
-import type { CartItem } from "../context/CartContext"; // ✅ Directly import type
+import type { CartItem } from "../context/CartContext";
+
+// 🔹 Define expected response type from backend
+interface OrderResponse {
+  _id: string;
+  // Add more fields here if your backend returns them
+}
 
 const Checkout = () => {
   const { cart, clearCart } = useCart();
@@ -36,9 +42,8 @@ const Checkout = () => {
     try {
       setLoading(true);
 
-      // ✅ prepare items for backend
       const items = cart.map((item: CartItem) => ({
-        product: item._id, // ✅ ab hamesha _id use hoga
+        product: item._id,
         qty: item.quantity,
         price: item.price,
       }));
@@ -50,8 +55,8 @@ const Checkout = () => {
         payment: form.payment,
       };
 
-      // ✅ api call (interceptor automatically token inject karega)
-      const res = await api.post("/orders", orderData);
+      // ✅ Type the response to avoid 'unknown' error
+      const res = await api.post<OrderResponse>("/orders", orderData);
 
       clearCart();
       alert("🎉 Order Placed Successfully!");
