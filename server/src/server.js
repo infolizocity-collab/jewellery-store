@@ -1,4 +1,3 @@
-// server.js
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -26,7 +25,6 @@ const allowedOrigins = process.env.CORS_ORIGIN?.split(",") || [
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow requests with no origin (like mobile apps, curl)
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -46,7 +44,7 @@ app.use("/api/users", userRoutes);
 
 // ✅ Root test route
 app.get("/", (req, res) => {
-  res.send("🚀 Backend running on Vercel with MongoDB Atlas & JWT Auth");
+  res.send("🚀 Backend running on Render with MongoDB Atlas & JWT Auth");
 });
 
 // ✅ Handle unknown routes
@@ -74,5 +72,8 @@ mongoose
     process.exit(1);
   });
 
-// ✅ Export for Vercel (no app.listen here!)
-export default app;
+// ✅ Port binding for Render
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server is running on port ${PORT}`);
+});
