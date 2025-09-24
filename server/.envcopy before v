@@ -1,0 +1,13 @@
+NODE_ENV=production
+PORT=5000
+MONGO_URI=mongodb+srv://hitmoon56_db_user:OKrNMTRvzyM33HjD@jewellerycluster.yuxbkem.mongodb.net/jewellery_store?retryWrites=true&w=majority&appName=JewelleryCluster
+JWT_SECRET=S@hil@@khan
+JWT_EXPIRES_IN=7d
+CORS_ORIGIN=https://jewellery-store-54yo.vercel.app,http://localhost:5173
+CLOUDINARY_CLOUD_NAME=dqlb0xswk
+CLOUDINARY_API_KEY=327794915729742
+CLOUDINARY_API_SECRET=sO1Mevr3nWriiu0_qENeJj0-lZ8
+
+
+EMAIL_USER=yourgmail@gmail.com
+EMAIL_PASS=your-gmail-app-password

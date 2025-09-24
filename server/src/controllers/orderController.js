@@ -1,5 +1,6 @@
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
+import { sendOrderEmail } from "../utils/email.js";   // ✅ Import email util
 
 // ✅ Create New Order
 export const createOrder = async (req, res) => {
@@ -10,7 +11,7 @@ export const createOrder = async (req, res) => {
       return res.status(400).json({ message: "No order items" });
     }
 
-    // ✅ Validate & enrich items
+    // Validate & enrich items
     const populatedItems = await Promise.all(
       items.map(async (item) => {
         const product = await Product.findById(item.product);
@@ -23,7 +24,7 @@ export const createOrder = async (req, res) => {
       })
     );
 
-    // ✅ Total
+    // Total
     const total = populatedItems.reduce(
       (acc, item) => acc + item.price * item.qty,
       0
@@ -36,10 +37,24 @@ export const createOrder = async (req, res) => {
       address,
       paymentId: paymentId || null,
       payment: payment || "Cash on Delivery",
-      status: "pending", // default
+      status: "pending",
     });
 
     const createdOrder = await order.save();
+
+    // ✅ Email Content
+    const html = `
+      <h2>🎉 Order Confirmation</h2>
+      <p>Hi ${req.user.name},</p>
+      <p>Your order <b>#${createdOrder._id}</b> has been placed successfully.</p>
+      <p>Total Amount: <b>₹${createdOrder.total}</b></p>
+      <p>Payment Method: ${createdOrder.payment}</p>
+      <p>We will notify you when it ships.</p>
+    `;
+
+    // ✅ Send Email
+    await sendOrderEmail(req.user.email, "Order Confirmation", html);
+
     res.status(201).json(createdOrder);
   } catch (error) {
     console.error("❌ Error creating order:", error.message);
