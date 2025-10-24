@@ -3,15 +3,17 @@ import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 
+// ✅ Load environment variables at the very top
+dotenv.config();
+
+const app = express();
+
 // Routes
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
-
-dotenv.config();
-const app = express();
 
 // ✅ Middleware
 app.use(express.json());
@@ -22,18 +24,15 @@ app.use((req, res, next) => {
   next();
 });
 
-// ✅ CORS setup
-const allowedOrigins = process.env.CORS_ORIGIN?.split(",") || [
-  "http://localhost:5173",
-];
+// ✅ CORS setup: localhost + all Vercel deployments
+const localOrigin = "http://localhost:5173";
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("❌ Not allowed by CORS: " + origin));
-      }
+      if (!origin) return callback(null, true); // allow Postman or server-to-server requests
+      if (origin === localOrigin) return callback(null, true);
+      if (/\.vercel\.app$/.test(origin)) return callback(null, true); // allow all Vercel URLs
+      return callback(new Error("❌ Not allowed by CORS: " + origin), false);
     },
     credentials: true,
   })
@@ -65,6 +64,9 @@ app.use((err, req, res, next) => {
 
 // ✅ MongoDB Connection + Start Server
 const PORT = process.env.PORT || 5000;
+
+// Debugging: make sure MONGO_URI is loaded
+console.log("Mongo URI:", process.env.MONGO_URI);
 
 mongoose
   .connect(process.env.MONGO_URI)
