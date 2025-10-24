@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "../../utils/axiosInstance";
+import api from "@/utils/axiosInstance";
 
 // 🔹 Product type
 interface Product {

@@ -12,7 +12,7 @@ export default function Sidebar() {
   ];
 
   return (
-    <div className="w-64 bg-black text-white min-h-screen p-5 shadow-xl">
+    <div className="fixed top-0 left-0 w-64 h-screen bg-black text-white p-5 shadow-xl">
       <h2 className="text-2xl font-bold mb-6 text-yellow-500 text-center">
         Admin Panel
       </h2>

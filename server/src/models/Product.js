@@ -55,6 +55,16 @@ const productSchema = new mongoose.Schema(
     // Avg rating + total reviews
     rating: { type: Number, default: 0 },
     numReviews: { type: Number, default: 0 },
+
+    // 🔹 New Fields
+    tags: {
+      type: [String], // ["navratri", "diwali", "dussehra"]
+      default: [],
+    },
+    featured: {
+      type: Boolean,
+      default: false, // show on festive pages
+    },
   },
   { timestamps: true }
 );

@@ -7,9 +7,9 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Footer from "./components/Footer";
 import Products from "./pages/Products";
-import Cart from "./pages/Cart";  
+import Cart from "./pages/Cart";
 import { CartProvider } from "./context/CartContext";
-import { AuthProvider } from "./context/AuthContext"; // ✅ add this
+import { AuthProvider } from "./context/AuthContext";
 import Checkout from "./pages/Checkout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import ManageProducts from "./pages/admin/ManageProducts";
@@ -24,17 +24,24 @@ import CategoryPage from "./pages/CategoryPage";
 import CustomHamper from "./pages/CustomHamper";
 import ManageUsers from "./pages/admin/ManageUsers";
 import Profile from "./pages/Profile";
+import FAQ from "./pages/FAQ";
+import Shipping from "./pages/Shipping";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Offers from "./pages/Offers";
+import DashboardHome from "./pages/admin/DashboardHome"; // ✅ import this
+import NavratriPage from "./pages/NavratriPage";
+import DiwaliPage from "./pages/DiwaliPage";
+import DussehraPage from "./pages/DussehraPage";
+
+
 
 
 function App() {
   return (
-    <AuthProvider>        {/* ✅ wrap everything inside AuthProvider */}
+    <AuthProvider>
       <CartProvider>
         <div className="flex flex-col min-h-screen">
-          {/* Navbar har page pe upar */}
           <Navbar />
-
-          {/* Main content */}
           <main className="flex-grow pt-16">
             <Routes>
               {/* Public Routes */}
@@ -51,12 +58,21 @@ function App() {
               <Route path="/category/:category" element={<CategoryPage />} />
               <Route path="/hamper" element={<CustomHamper />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/shipping" element={<Shipping />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/offers" element={<Offers />} />
+              <Route path="/navratri" element={<NavratriPage />} />
+              <Route path="/diwali-sale" element={<DiwaliPage />} />
+              <Route path="/dussehra" element={<DussehraPage />} />
 
-              {/* ✅ User Orders */}
+              
+
+              {/* User Orders */}
               <Route path="/my-orders" element={<MyOrders />} />
               <Route path="/orders/:id" element={<OrderDetails />} />
 
-              {/* ✅ Admin Routes - Nested with protection */}
+              {/* ✅ Admin Routes with index */}
               <Route
                 path="/admin"
                 element={
@@ -65,6 +81,7 @@ function App() {
                   </ProtectedRoute>
                 }
               >
+                <Route index element={<DashboardHome />} /> {/* ✅ this is the fix */}
                 <Route path="products" element={<ManageProducts />} />
                 <Route path="orders" element={<ManageOrders />} />
                 <Route path="add-product" element={<AddProduct />} />
@@ -72,8 +89,6 @@ function App() {
               </Route>
             </Routes>
           </main>
-
-          {/* Footer har page pe niche */}
           <Footer />
         </div>
       </CartProvider>

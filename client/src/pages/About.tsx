@@ -19,7 +19,7 @@ const About = () => {
         <div>
           <h2 className="text-2xl font-semibold mb-4">Our Story</h2>
           <p className="text-gray-600 leading-relaxed mb-4">
-            At <span className="font-semibold">Jewellery Store</span>, we believe
+            At <span className="font-semibold">Queensera Jewels</span>, we believe
             jewelry is more than just an accessory — it’s a reflection of your
             style, personality, and precious memories.
           </p>

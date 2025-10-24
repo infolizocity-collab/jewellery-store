@@ -1,0 +1,423 @@
+// src/pages/Home.tsx
+import { useEffect, useState } from "react";
+import api from "../utils/axiosInstance";
+import Slider from "react-slick";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useCart } from "@/context/CartContext";
+
+import Earrings from "../assets/earrings.jpg";
+import Pendants from "../assets/pendants.jpg";
+
+import diwaliSale from '../assets/diwalisale.jpeg';
+
+// ✅ Types
+interface Product {
+  _id: string;
+  name: string;
+  price: number;
+  image: string;
+  originalPrice?: number;
+  category?: string;
+  slug?: string;
+  onSale?: boolean;
+}
+
+// 🔹 Small reusable section heading
+const SectionHeading = ({ title, accent }: { title: string; accent?: boolean }) => (
+  <h3
+    className={`text-2xl mb-8 font-bold ${
+      accent ? "text-pink-600" : "text-gray-800"
+    }`}
+  >
+    {title}
+  </h3>
+);
+
+const Home = () => {
+  const { addToCart } = useCart();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [saleProducts, setSaleProducts] = useState<Product[]>([]);
+  const [selectedBudget, setSelectedBudget] = useState<{
+    label: string;
+    min: number;
+    max: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await api.get<Product[]>("/products");
+        setProducts(res.data);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+      }
+    };
+    const fetchSaleProducts = async () => {
+      try {
+        const res = await api.get<Product[]>("/products/sale");
+        setSaleProducts(res.data);
+      } catch (err) {
+        console.error("Error fetching sale products:", err);
+      }
+    };
+    fetchProducts();
+    fetchSaleProducts();
+  }, []);
+
+  // ✅ Slider settings
+  const settings = {
+    dots: false,
+    infinite: true,
+    speed: 600,
+    slidesToShow: 4,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    responsive: [
+      { breakpoint: 1024, settings: { slidesToShow: 3 } },
+      { breakpoint: 768, settings: { slidesToShow: 2 } },
+      { breakpoint: 480, settings: { slidesToShow: 1 } },
+    ],
+  };
+
+  const budgetRanges = [
+    { label: "Under ₹99", min: 0, max: 99 },
+    { label: "₹99 – ₹199", min: 99, max: 199 },
+    { label: "₹199 – ₹499", min: 199, max: 499 },
+    { label: "₹499 – ₹999", min: 499, max: 999 },
+  ];
+
+  const categories = [
+    { name: "Pendants", img: Pendants },
+    { name: "Earrings", img: Earrings },
+    { name: "Bracelets", img: Earrings },
+    { name: "Rings", img: Earrings },
+    { name: "Anklets", img: Earrings },
+    { name: "Sets", img: Earrings },
+  ];
+
+  return (
+    <div className="min-h-screen font-serif text-black bg-gradient-to-br from-pink-100 via-white to-pink-200">
+  {/* ================= HERO ================= */}
+
+
+<section
+  className="relative w-full h-[500px] md:h-[600px] bg-cover bg-center flex items-center justify-center"
+  style={{
+    backgroundImage: `url(${diwaliSale})`,
+  }}
+>
+  {/* 🔹 Gradient Overlay */}
+  <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent"></div>
+
+  <motion.div
+    className="relative z-10 text-center text-white max-w-4xl px-6"
+    initial={{ opacity: 0, y: 50 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 1 }}
+  >
+    {/* 🔹 Festive Sparkle Title */}
+    <h1 className="text-4xl md:text-6xl font-extrabold tracking-wide leading-tight mb-6 drop-shadow-lg">
+      Festive <span className="text-yellow-400">Elegance ✨</span>
+      <br /> That Lasts Forever
+    </h1>
+
+    {/* 🔹 Subtext */}
+    <p className="text-lg md:text-2xl mb-10 text-gray-200 max-w-2xl mx-auto leading-relaxed">
+      Celebrate{" "}
+      <span className="text-yellow-400 font-semibold">Diwali & Dussehra</span>{" "}
+      with handcrafted jewelry at flat{" "}
+      <span className="font-bold text-yellow-400">50% OFF</span>.
+    </p>
+
+    {/* 🔹 Buttons */}
+    <div className="flex flex-col sm:flex-row justify-center gap-5">
+      <Link
+        to="/Navratri"
+        className="inline-block bg-gradient-to-r from-yellow-400 to-pink-500 text-black px-10 py-3 rounded-full font-bold shadow-lg hover:scale-105 hover:shadow-xl transition transform"
+      >
+        🛍 Shop Now
+      </Link>
+      <Link
+        to="/offers"
+        className="inline-block border-2 border-yellow-400 text-yellow-400 px-10 py-3 rounded-full font-medium shadow-lg hover:bg-yellow-400 hover:text-black hover:scale-105 hover:shadow-xl transition transform"
+      >
+        🎁 View Offers
+      </Link>
+    </div>
+  </motion.div>
+
+  {/* 🔹 Decorative Sparkles (optional) */}
+  <div className="absolute bottom-8 right-10 text-yellow-300 text-4xl animate-pulse">
+    ✨
+  </div>
+  <div className="absolute top-12 left-10 text-pink-300 text-3xl animate-bounce">
+    🌸
+  </div>
+</section>
+
+
+
+
+
+
+      {/* ================= Categories ================= */}
+     {/* ================= Categories ================= */}
+<section className="relative px-12 py-20 bg-gradient-to-b from-white to-pink-50">
+  <h3 className="text-3xl font-extrabold mb-12 text-center text-gray-800 tracking-wide">
+    Shop by Category
+  </h3>
+
+  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-10 text-center">
+    {categories.map((cat, i) => (
+      <Link
+        key={i}
+        to={`/category/${cat.name.toLowerCase()}`}
+        className="group flex flex-col items-center cursor-pointer"
+      >
+        <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden shadow-lg border border-gray-200 group-hover:scale-105 transition duration-300 ease-out">
+          <img
+            src={cat.img}
+            alt={cat.name}
+            className="w-full h-full object-cover group-hover:brightness-95"
+          />
+        </div>
+        <span className="mt-4 text-lg font-semibold text-gray-700 group-hover:text-pink-600 transition">
+          {cat.name}
+        </span>
+      </Link>
+    ))}
+  </div>
+</section>
+
+
+
+    {/* ================= Shop Under Budget ================= */}
+<section className="px-12 py-16 bg-white">
+  <SectionHeading title="💸 Shop Under Budget" accent />
+
+  {/* Budget Buttons */}
+  <div className="flex flex-wrap justify-center gap-4 mb-12">
+    {budgetRanges.map((budget) => (
+      <button
+        key={budget.label}
+        onClick={() => setSelectedBudget(budget)}
+        className={`px-6 py-3 rounded-full text-sm font-semibold tracking-wide transition-all duration-300 shadow-sm
+          ${
+            selectedBudget?.label === budget.label
+              ? "bg-gradient-to-r from-pink-500 to-pink-400 text-white shadow-md"
+              : "bg-white border border-pink-400 text-pink-600 hover:bg-pink-50"
+          }`}
+      >
+        {budget.label}
+      </button>
+    ))}
+  </div>
+
+  {/* Budget Products */}
+  {selectedBudget && (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+      {products
+        .filter(
+          (p) => p.price >= selectedBudget.min && p.price <= selectedBudget.max
+        )
+        .map((p) => (
+          <motion.div
+            key={p._id}
+            className="bg-white rounded-xl p-6 text-center border border-gray-200 shadow-sm group hover:shadow-lg transition"
+            whileHover={{ scale: 1.03 }}
+          >
+            <img
+              src={p.image}
+              alt={p.name}
+              className="h-44 mx-auto mb-4 object-cover rounded-lg"
+            />
+            <h4 className="text-base font-semibold text-gray-800 mb-2">
+              {p.name}
+            </h4>
+            <p className="text-pink-600 font-bold">₹{p.price}</p>
+            <button
+              onClick={() =>
+                addToCart({
+                  _id: p._id,
+                  name: p.name,
+                  price: p.price,
+                  image: p.image,
+                })
+              }
+              className="mt-4 px-5 py-2 bg-gradient-to-r from-pink-500 to-pink-400 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all"
+            >
+              Add to Cart
+            </button>
+          </motion.div>
+        ))}
+    </div>
+  )}
+</section>
+
+  {/* ================= Trending ================= */}
+<section className="px-12 py-16 bg-gradient-to-b from-white to-pink-50">
+  <SectionHeading title="🔥 Trending Collection" />
+
+  {products.length > 0 ? (
+    <Slider {...settings}>
+      {products.map((p) => (
+        <div key={p._id} className="px-3">
+          <div className="relative bg-white rounded-xl p-6 text-center border border-gray-200 shadow-sm group hover:shadow-lg transition">
+            {p.onSale && (
+              <span className="absolute top-2 right-2 bg-red-500 text-xs px-2 py-1 rounded-full text-white">
+                SALE
+              </span>
+            )}
+
+            {/* ✅ Image + Name clickable */}
+            <Link to={`/products/${p.slug || p._id}`}>
+              <img
+                src={p.image}
+                alt={p.name}
+                className="mx-auto h-44 object-cover mb-4 rounded-lg hover:opacity-90 transition"
+              />
+              <p className="text-base font-semibold text-gray-800 hover:text-pink-600 transition">
+                {p.name}
+              </p>
+            </Link>
+
+            <p className="text-pink-600 font-bold">₹{p.price}</p>
+            <button
+              onClick={() =>
+                addToCart({
+                  _id: p._id,
+                  name: p.name,
+                  price: p.price,
+                  image: p.image,
+                })
+              }
+              className="mt-3 px-5 py-2 bg-gradient-to-r from-pink-500 to-pink-400 text-white rounded-full opacity-0 group-hover:opacity-100 transition"
+            >
+              Add to Cart
+            </button>
+          </div>
+        </div>
+      ))}
+    </Slider>
+  ) : (
+    <p className="text-center text-gray-600">Loading products...</p>
+  )}
+</section>
+
+
+
+   {/* ================= Sale Products ================= */}
+<section className="px-12 py-16 bg-white">
+  <SectionHeading title="🔥 On Sale" accent />
+
+  {saleProducts.length > 0 ? (
+    <Slider {...settings}>
+      {saleProducts.map((p) => (
+        <div key={p._id} className="px-3">
+          <div className="relative bg-gradient-to-b from-pink-50 to-white rounded-xl p-6 text-center border border-pink-300 shadow-sm group hover:shadow-lg transition">
+            <span className="absolute top-2 right-2 bg-red-500 text-xs px-3 py-1 rounded-full text-white shadow-md">
+              SALE
+            </span>
+            <img
+              src={p.image}
+              alt={p.name}
+              className="mx-auto h-44 object-cover mb-4 rounded-lg"
+            />
+            <p className="text-base font-semibold text-gray-800">{p.name}</p>
+            <div className="mt-2">
+              <p className="text-red-500 font-bold">₹{p.price}</p>
+              {p.originalPrice && (
+                <p className="text-gray-400 line-through">₹{p.originalPrice}</p>
+              )}
+            </div>
+            <Link
+              to={`/products/${p.slug}`}
+              className="mt-4 inline-block text-sm px-5 py-2 rounded-full border border-pink-500 text-pink-600 hover:bg-pink-500 hover:text-white transition"
+            >
+              View Details
+            </Link>
+          </div>
+        </div>
+      ))}
+    </Slider>
+  ) : (
+    <p className="text-center text-gray-600">No sale products available</p>
+  )}
+</section>
+
+
+     {/* ================= Korean Jewelry ================= */}
+<section className="px-12 py-16 bg-gradient-to-b from-white to-pink-50">
+  <SectionHeading title="✨ Korean Jewelry Collection" accent />
+
+  <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+    {products
+      .filter((p) => p.category?.toLowerCase() === "korean jewelry")
+      .map((p) => (
+        <motion.div
+          key={p._id}
+          className="relative bg-white rounded-xl p-6 text-center border border-gray-200 shadow-sm group hover:shadow-lg transition"
+          whileHover={{ scale: 1.03 }}
+        >
+          {p.onSale && (
+            <span className="absolute top-2 right-2 bg-red-500 text-xs px-3 py-1 rounded-full text-white shadow-md">
+              SALE
+            </span>
+          )}
+          <img
+            src={p.image}
+            alt={p.name}
+            className="h-44 mx-auto mb-4 object-cover rounded-lg"
+          />
+          <h4 className="text-base font-semibold text-gray-800">{p.name}</h4>
+          <p className="text-pink-600 font-bold">₹{p.price}</p>
+          <button
+            onClick={() =>
+              addToCart({
+                _id: p._id,
+                name: p.name,
+                price: p.price,
+                image: p.image,
+              })
+            }
+            className="mt-4 px-5 py-2 bg-gradient-to-r from-pink-500 to-pink-400 text-white rounded-full opacity-0 group-hover:opacity-100 transition"
+          >
+            Add to Cart
+          </button>
+        </motion.div>
+      ))}
+  </div>
+</section>
+
+
+      {/* ================= Custom Hamper ================= */}
+<section className="relative px-12 py-20 bg-gradient-to-r from-pink-100 via-white to-pink-100 text-center rounded-lg mx-4 shadow-md">
+  {/* Decorative Glow */}
+  <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-pink-50/40 rounded-lg"></div>
+
+  <div className="relative z-10">
+    <SectionHeading title="🎁 Create Your Own Hamper" accent />
+    <p className="text-gray-700 mb-8 max-w-xl mx-auto leading-relaxed">
+      Curate a hamper with your favorite jewelry pieces and gift something truly personal & timeless.
+    </p>
+
+    <Link
+      to="/hamper"
+      className="inline-block px-8 py-3 bg-gradient-to-r from-pink-500 to-pink-400 text-white rounded-full font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+    >
+      Start Customizing
+    </Link>
+  </div>
+</section>
+
+      {/* ================= Footer ================= */}
+      <footer className="border-t border-gray-300 text-center py-6 text-gray-600 text-sm mt-8">
+        © 2025 Queens Era Jewels . All rights reserved.
+      </footer>
+    </div>
+  );
+};
+
+export default Home;

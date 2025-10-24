@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import api from "../utils/axiosInstance";
 import { Link } from "react-router-dom";
 
-// 🔹 Order type
 interface Order {
   _id: string;
   total: number;
@@ -11,10 +10,10 @@ interface Order {
   payment: string;
   items: {
     product: {
-      name: string;
-      price: number;
-      image: string;
-    };
+      name?: string;
+      price?: number;
+      image?: string;
+    } | null;
     qty: number;
   }[];
 }
@@ -26,16 +25,13 @@ const MyOrders = () => {
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem("token");
-
-      // ✅ Tell Axios what type of data to expect
       const res = await api.get<Order[]>("/orders/myorders", {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      setOrders(res.data); // ✅ TypeScript now knows this is Order[]
-      setLoading(false);
+      setOrders(res.data);
     } catch (err) {
       console.error("❌ Error fetching orders:", err);
+    } finally {
       setLoading(false);
     }
   };
@@ -44,13 +40,24 @@ const MyOrders = () => {
     fetchOrders();
   }, []);
 
-  if (loading) return <p className="text-center mt-10">Loading your orders...</p>;
+  if (loading)
+    return <p className="text-center mt-10">Loading your orders...</p>;
 
+  // ✅ Empty State (only here)
   if (orders.length === 0)
     return (
       <div className="text-center mt-10">
         <h2 className="text-2xl font-bold">No Orders Found</h2>
-        <p className="text-gray-600">You haven't placed any orders yet.</p>
+        <p className="text-gray-600 mb-4">
+          You haven't placed any orders yet.
+        </p>
+        <Link
+          to="/products"
+          className="inline-block bg-yellow-400 hover:bg-yellow-500
+                     px-5 py-2 rounded text-sm font-medium"
+        >
+          Start Shopping
+        </Link>
       </div>
     );
 
@@ -60,7 +67,10 @@ const MyOrders = () => {
 
       <div className="space-y-4">
         {orders.map((order) => (
-          <div key={order._id} className="border rounded-lg p-4 shadow bg-white">
+          <div
+            key={order._id}
+            className="border rounded-lg p-4 shadow bg-white"
+          >
             <div className="flex justify-between items-center mb-2">
               <span className="font-bold">Order ID: {order._id}</span>
               <span
@@ -90,17 +100,23 @@ const MyOrders = () => {
                   className="flex justify-between items-center text-sm border-b pb-2"
                 >
                   <div className="flex items-center gap-3">
-                    <img
-                      src={item.product.image}
-                      alt={item.product.name}
-                      className="w-12 h-12 object-cover rounded"
-                    />
+                    {item.product?.image ? (
+                      <img
+                        src={item.product.image}
+                        alt={item.product?.name || "No name"}
+                        className="w-12 h-12 object-cover rounded"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 bg-gray-200 flex items-center justify-center rounded text-xs text-gray-500">
+                        N/A
+                      </div>
+                    )}
                     <span>
-                      {item.product.name} (x{item.qty})
+                      {item.product?.name || "Product removed"} (x{item.qty})
                     </span>
                   </div>
                   <span className="font-medium">
-                    ₹{item.product.price * item.qty}
+                    ₹{(item.product?.price || 0) * item.qty}
                   </span>
                 </div>
               ))}

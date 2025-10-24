@@ -1,17 +1,19 @@
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
-import { sendOrderEmail } from "../utils/email.js";   // ✅ Import email util
+import { sendOrderEmail } from "../utils/email.js";   // ✅ Email util
 
-// ✅ Create New Order
+/* =========================
+   🛍 Create New Order
+   ========================= */
 export const createOrder = async (req, res) => {
   try {
-    const { items, address, paymentId, payment } = req.body;
+    const { items, shippingAddress, paymentId, payment } = req.body;
 
     if (!items || items.length === 0) {
       return res.status(400).json({ message: "No order items" });
     }
 
-    // Validate & enrich items
+    // ✅ Validate & enrich items
     const populatedItems = await Promise.all(
       items.map(async (item) => {
         const product = await Product.findById(item.product);
@@ -24,7 +26,7 @@ export const createOrder = async (req, res) => {
       })
     );
 
-    // Total
+    // ✅ Total
     const total = populatedItems.reduce(
       (acc, item) => acc + item.price * item.qty,
       0
@@ -34,7 +36,7 @@ export const createOrder = async (req, res) => {
       user: req.user._id,
       items: populatedItems,
       total,
-      address,
+      address: shippingAddress || {},   // 🔄 backend me address field hai
       paymentId: paymentId || null,
       payment: payment || "Cash on Delivery",
       status: "pending",
@@ -43,13 +45,29 @@ export const createOrder = async (req, res) => {
     const createdOrder = await order.save();
 
     // ✅ Email Content
+    const itemsHtml = populatedItems
+      .map(
+        (i) =>
+          `<li>${i.qty} x ${i.product.name || "Product"} — ₹${
+            i.price * i.qty
+          }</li>`
+      )
+      .join("");
+
     const html = `
       <h2>🎉 Order Confirmation</h2>
       <p>Hi ${req.user.name},</p>
       <p>Your order <b>#${createdOrder._id}</b> has been placed successfully.</p>
-      <p>Total Amount: <b>₹${createdOrder.total}</b></p>
-      <p>Payment Method: ${createdOrder.payment}</p>
-      <p>We will notify you when it ships.</p>
+      <p><b>Total Amount:</b> ₹${createdOrder.total}</p>
+      <p><b>Payment Method:</b> ${createdOrder.payment}</p>
+      ${
+        shippingAddress
+          ? `<p><b>Shipping Address:</b> ${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state} - ${shippingAddress.pincode}</p>`
+          : ""
+      }
+      <p><b>Items:</b></p>
+      <ul>${itemsHtml}</ul>
+      <p>We will notify you when it ships 🚚</p>
     `;
 
     // ✅ Send Email
@@ -62,7 +80,9 @@ export const createOrder = async (req, res) => {
   }
 };
 
-// ✅ Get User Orders
+/* =========================
+   👤 Get User Orders
+   ========================= */
 export const getMyOrders = async (req, res) => {
   try {
     const orders = await Order.find({ user: req.user._id })
@@ -73,7 +93,9 @@ export const getMyOrders = async (req, res) => {
   }
 };
 
-// ✅ Get Order by ID
+/* =========================
+   📦 Get Order by ID
+   ========================= */
 export const getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
@@ -95,7 +117,9 @@ export const getOrderById = async (req, res) => {
   }
 };
 
-// ✅ Admin - Get All Orders
+/* =========================
+   🛒 Admin - Get All Orders
+   ========================= */
 export const getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find()
@@ -107,16 +131,28 @@ export const getAllOrders = async (req, res) => {
   }
 };
 
-// ✅ Admin - Update Order Status
+/* =========================
+   🛠 Admin - Update Order Status
+   ========================= */
 export const updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findById(req.params.id).populate("user", "name email");
 
     if (!order) return res.status(404).json({ message: "Order not found" });
 
     order.status = status || order.status;
     const updatedOrder = await order.save();
+
+    // ✅ Send status update email
+    const html = `
+      <h2>📢 Order Status Update</h2>
+      <p>Hi ${order.user.name},</p>
+      <p>Your order <b>#${order._id}</b> status has been updated.</p>
+      <p><b>Current Status:</b> ${updatedOrder.status}</p>
+    `;
+
+    await sendOrderEmail(order.user.email, "Order Status Update", html);
 
     res.json(updatedOrder);
   } catch (error) {

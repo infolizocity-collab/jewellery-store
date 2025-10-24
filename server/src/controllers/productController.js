@@ -4,7 +4,19 @@ import slugify from "slugify";
 // ✅ Create Product (Admin only)
 export const createProduct = async (req, res) => {
   try {
-    const { name, description, price, originalPrice, onSale, category, stock, image } = req.body;
+    const {
+      name,
+      description,
+      price,
+      originalPrice,
+      onSale,
+      category,
+      stock,
+      image,
+      images,
+      tags,       // 🔹 new
+      featured,   // 🔹 new
+    } = req.body;
 
     // Slug generate
     let slug = slugify(name, { lower: true, strict: true });
@@ -24,7 +36,10 @@ export const createProduct = async (req, res) => {
       category,
       stock,
       image,
+      images,
       slug,
+      tags: tags || [],
+      featured: featured || false,
     });
 
     const savedProduct = await product.save();
@@ -35,10 +50,16 @@ export const createProduct = async (req, res) => {
   }
 };
 
-// ✅ Get All Products
+// ✅ Get All Products (with filter support)
 export const getProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const { tag, featured } = req.query;
+
+    let filter = {};
+    if (tag) filter.tags = tag; // e.g. ?tag=diwali
+    if (featured === "true") filter.featured = true;
+
+    const products = await Product.find(filter);
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
@@ -118,7 +139,7 @@ export const deleteProduct = async (req, res) => {
   }
 };
 
-  // ✅ Add Review to a Product
+// ✅ Add Review to a Product
 export const addProductReview = async (req, res) => {
   try {
     const { rating, comment } = req.body;
@@ -159,6 +180,3 @@ export const addProductReview = async (req, res) => {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
-
-
-

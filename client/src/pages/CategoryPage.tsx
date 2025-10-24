@@ -21,7 +21,7 @@ const CategoryPage = () => {
     const fetchCategoryProducts = async () => {
       try {
         setLoading(true);
-        const res = await api.get(`/api/products/category/${category}`);
+        const res = await api.get(`/products/category/${category}`);
         console.log("Fetched products:", res.data);
         if (Array.isArray(res.data)) {
           setProducts(res.data);
